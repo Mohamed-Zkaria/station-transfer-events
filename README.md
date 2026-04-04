@@ -2,6 +2,15 @@
 
 NestJS service for ingesting station transfer events with idempotent, concurrency-safe batch processing and reconciliation summaries.
 
+## Quick Start
+
+| Action | Local | Docker |
+|--------|-------|--------|
+| Run the app | `make run` | `docker compose up --build` |
+| Run unit tests | `make test` | `docker compose run --rm test` |
+| Run e2e tests | `make test-e2e` | `docker compose run --rm test npm run test:e2e` |
+| Lint | `make lint` | — |
+
 ## Tech Stack
 
 - **Framework:** NestJS 10 (TypeScript, Express)
@@ -119,7 +128,7 @@ PostgreSQL's unique constraint on `event_id` prevents double-inserts at the data
 
 - **Validation:** Fail-fast -- the entire request is rejected if any event fails validation (400)
 - **Duplicates:** Partial-accept -- valid events are inserted, duplicates are skipped and counted in the response
-- **Limit:** Maximum 1000 events per batch
+- **Limit:** Maximum 500 events per batch
 
 ### Storage Architecture
 
@@ -129,6 +138,8 @@ The storage layer uses an interface/port pattern. `IEventStore` defines the cont
 
 - **`synchronize: true`:** TypeORM auto-creates tables from entities. Acceptable for a take-home; production would use migrations.
 - **Decimal amounts:** Stored as `decimal(20,2)` in PostgreSQL for precision. JavaScript `parseFloat` is used on read, which is sufficient for this use case but production financial systems would use integer cents or a decimal library.
+- **Transactions:** Using transactions would cause higher latency for make sure everything is inserted into DB correctly.
+- **Fail entire request:** 
 
 ## Assumptions and Open Questions
 

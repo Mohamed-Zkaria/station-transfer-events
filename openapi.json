@@ -1,0 +1,181 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/transfers": {
+      "post": {
+        "operationId": "TransfersController_ingestEvents",
+        "summary": "Ingest a batch of transfer events",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestEventsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestEventsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        },
+        "tags": [
+          "Transfers"
+        ]
+      }
+    },
+    "/stations/{station_id}/summary": {
+      "get": {
+        "operationId": "TransfersController_getStationSummary",
+        "summary": "Get summary for a station",
+        "parameters": [
+          {
+            "name": "station_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationSummaryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Transfers"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Station Transfer Events",
+    "description": "API documentation for station transfer events.",
+    "version": "1.0",
+    "contact": {
+
+    }
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "TransferEventDto": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "example": "evt-001"
+          },
+          "station_id": {
+            "type": "string",
+            "example": "station-A"
+          },
+          "amount": {
+            "type": "number",
+            "example": 100.5
+          },
+          "status": {
+            "type": "string",
+            "example": "approved"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2024-01-15T10:30:00Z"
+          }
+        },
+        "required": [
+          "event_id",
+          "station_id",
+          "amount",
+          "status",
+          "created_at"
+        ]
+      },
+      "IngestEventsDto": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransferEventDto"
+            }
+          }
+        },
+        "required": [
+          "events"
+        ]
+      },
+      "IngestEventsResponseDto": {
+        "type": "object",
+        "properties": {
+          "inserted": {
+            "type": "number",
+            "example": 3
+          },
+          "duplicates": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "inserted",
+          "duplicates"
+        ]
+      },
+      "StationSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "example": "station-A"
+          },
+          "total_approved_amount": {
+            "type": "number",
+            "example": 250.75
+          },
+          "events_count": {
+            "type": "number",
+            "example": 5
+          }
+        },
+        "required": [
+          "station_id",
+          "total_approved_amount",
+          "events_count"
+        ]
+      }
+    }
+  }
+}
