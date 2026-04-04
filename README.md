@@ -1,99 +1,140 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Station Transfer Events
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS service for ingesting station transfer events with idempotent, concurrency-safe batch processing and reconciliation summaries.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tech Stack
 
-## Description
+- **Framework:** NestJS 10 (TypeScript, Express)
+- **Database:** PostgreSQL 16 with TypeORM
+- **Validation:** class-validator, class-transformer
+- **API Docs:** Swagger / OpenAPI via @nestjs/swagger
+- **Testing:** Jest, Supertest
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Running Locally
 
-## Project setup
+**Prerequisites:** Node.js 20+, PostgreSQL running locally
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+Create a `.env` file in `src/`:
+
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=petro_app
+SERVER_PORT=3000
+```
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run start:dev
 ```
 
-## Run tests
+The app will start on `http://localhost:3000`. Swagger docs at `http://localhost:3000/docs`.
+
+## Running with Docker
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up --build
 ```
 
-## Deployment
+This starts both PostgreSQL and the app. API available at `http://localhost:3000`, Swagger at `http://localhost:3000/docs`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Running Tests
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+# Unit tests
+npm test
+
+# E2E tests (requires running PostgreSQL)
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## API Examples
 
-## Resources
+### Ingest Transfer Events
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+curl -X POST http://localhost:3000/transfers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "events": [
+      {
+        "event_id": "evt-001",
+        "station_id": "station-A",
+        "amount": 150.75,
+        "status": "approved",
+        "created_at": "2024-01-15T10:30:00Z"
+      },
+      {
+        "event_id": "evt-002",
+        "station_id": "station-A",
+        "amount": 200.00,
+        "status": "pending",
+        "created_at": "2024-01-15T11:00:00Z"
+      }
+    ]
+  }'
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Response (201):
+```json
+{ "inserted": 2, "duplicates": 0 }
+```
 
-## Support
+### Get Station Summary
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+curl http://localhost:3000/stations/station-A/summary
+```
 
-## Stay in touch
+Response (200):
+```json
+{
+  "station_id": "station-A",
+  "total_approved_amount": 150.75,
+  "events_count": 1
+}
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Only events with `"approved"` status are counted and summed.
 
-## License
+## Design Notes
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Idempotency
+
+Events use `event_id` as the primary key. Inserts use `INSERT ... ON CONFLICT (event_id) DO NOTHING`, so resubmitting the same batch is safe -- duplicates are counted but not re-inserted.
+
+### Concurrency
+
+PostgreSQL's unique constraint on `event_id` prevents double-inserts at the database level. Two concurrent requests with the same `event_id` are resolved by the DB -- one inserts, the other gets a no-op conflict. All batch inserts run within explicit transactions.
+
+### Batch Strategy
+
+- **Validation:** Fail-fast -- the entire request is rejected if any event fails validation (400)
+- **Duplicates:** Partial-accept -- valid events are inserted, duplicates are skipped and counted in the response
+- **Limit:** Maximum 1000 events per batch
+
+### Storage Architecture
+
+The storage layer uses an interface/port pattern. `IEventStore` defines the contract, `PostgresEventStore` implements it. The binding is done via a NestJS DI token (`EVENT_STORE` Symbol). To swap implementations, change `useClass` in `StorageModule` -- nothing else needs to change.
+
+### Tradeoffs
+
+- **`synchronize: true`:** TypeORM auto-creates tables from entities. Acceptable for a take-home; production would use migrations.
+- **Decimal amounts:** Stored as `decimal(20,2)` in PostgreSQL for precision. JavaScript `parseFloat` is used on read, which is sufficient for this use case but production financial systems would use integer cents or a decimal library.
+
+## Assumptions and Open Questions
+
+1. **Why does an event have a status of "approved" and not an attribute type?** The spec uses `status` as a free-form string. In a real system, this would likely be an enum or tied to a workflow state machine.
+2. **If it is approved, approved by whom?** The spec doesn't define an approval workflow. We treat `status` as a pre-existing label on the incoming event, not something this service controls.
+3. **Assumed this is a public API.** The `status` field accepts any string value rather than enforcing a fixed set of allowed values. If this were an internal API, we would restrict `status` to a known enum (e.g., `approved`, `pending`, `rejected`).
+4. **POST /transfers has a limit on the events array size.** Capped at 1000 events per batch to prevent abuse and keep request sizes manageable.
+5. **All event statuses are accepted on ingest, but the summary endpoint only counts and sums events with `"approved"` status.** This means non-approved events are stored but excluded from reconciliation totals.
+6. **No authentication layer is implemented.** In production, this API should be protected with an authentication mechanism such as API key validation (e.g., via a NestJS Guard that checks an `x-api-key` header) to prevent unauthorized access to the ingest and summary endpoints.
