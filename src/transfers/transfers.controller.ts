@@ -1,10 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IngestEventsDto } from './dto/ingest-events.dto';
 import { IngestEventsResponseDto } from './dto/ingest-events-response.dto';
 import { StationSummaryResponseDto } from './dto/station-summary-response.dto';

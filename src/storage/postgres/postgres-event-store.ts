@@ -26,7 +26,6 @@ export class PostgresEventStore implements IEventStore {
       });
 
       const rows = await manager.query(
-
         `INSERT INTO transfer_events (event_id, station_id, amount, status, created_at)
          VALUES ${valuePlaceholders.join(', ')}
          ON CONFLICT (event_id) DO NOTHING
