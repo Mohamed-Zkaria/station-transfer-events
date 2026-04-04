@@ -6,28 +6,45 @@ import {
   IEventStore,
   TransferEventData,
 } from '../interfaces/event-store.interface';
+import { TransactionService } from '../transaction.service';
 
 @Injectable()
 export class PostgresEventStore implements IEventStore {
   constructor(
     @InjectRepository(TransferEventEntity)
     private readonly repo: Repository<TransferEventEntity>,
+    private readonly transaction: TransactionService,
   ) {}
 
   async insertIgnoringConflicts(events: TransferEventData[]): Promise<number> {
-    const result = await this.repo
-      .createQueryBuilder()
-      .insert()
-      .into(TransferEventEntity)
-      .values(events)
-      .orIgnore()
-      .execute();
+    return this.transaction.run(async (manager) => {
+      const params: any[] = [];
+      const valuePlaceholders = events.map((e, i) => {
+        const offset = i * 5;
+        params.push(e.event_id, e.station_id, e.amount, e.status, e.created_at);
+        return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5})`;
+      });
 
-    return result.identifiers.filter((id) => id.event_id !== undefined).length;
+      const rows = await manager.query(
+
+        `INSERT INTO transfer_events (event_id, station_id, amount, status, created_at)
+         VALUES ${valuePlaceholders.join(', ')}
+         ON CONFLICT (event_id) DO NOTHING
+         RETURNING event_id`,
+        params,
+      );
+
+      return rows.length;
+    });
   }
 
-  async countByStation(stationId: string): Promise<number> {
-    return this.repo.count({ where: { station_id: stationId } });
+  async countByStationAndStatus(
+    stationId: string,
+    status: string,
+  ): Promise<number> {
+    return this.repo.count({
+      where: { station_id: stationId, status },
+    });
   }
 
   async sumAmountByStationAndStatus(

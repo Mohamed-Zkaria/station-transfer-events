@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TransferEventEntity } from './storage/entities/transfer-event.entity';
 import { StorageModule } from './storage/storage.module';
+import { TransfersModule } from './transfers/transfers.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { StorageModule } from './storage/storage.module';
       }),
     }),
     StorageModule,
+    TransfersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

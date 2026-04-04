@@ -12,8 +12,8 @@ export interface IEventStore {
   /** Insert events, skip conflicts on event_id. Returns count of rows actually inserted. */
   insertIgnoringConflicts(events: TransferEventData[]): Promise<number>;
 
-  /** Count all events for a station (all statuses). */
-  countByStation(stationId: string): Promise<number>;
+  /** Count events for a station filtered by status. */
+  countByStationAndStatus(stationId: string, status: string): Promise<number>;
 
   /** Sum the amount field for events matching a station and status. */
   sumAmountByStationAndStatus(
